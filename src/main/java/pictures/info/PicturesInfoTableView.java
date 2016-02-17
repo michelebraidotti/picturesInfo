@@ -15,10 +15,10 @@ public class PicturesInfoTableView extends TableView {
         fileNameCol.setMinWidth(100);
         fileNameCol.setCellValueFactory(new PropertyValueFactory("fileName"));
 
-        TableColumn imageWidthCol = new TableColumn("ImageWidth");
-        imageWidthCol.setMinWidth(350);
-        imageWidthCol.setCellValueFactory(new PropertyValueFactory("imageWidth"));
+        TableColumn gpsLongCol = new TableColumn("GPS Longitude");
+        gpsLongCol.setMinWidth(350);
+        gpsLongCol.setCellValueFactory(new PropertyValueFactory("gpsLongitude"));
 
-        getColumns().addAll(fileNameCol, imageWidthCol);
+        getColumns().addAll(fileNameCol, gpsLongCol);
     }
 }

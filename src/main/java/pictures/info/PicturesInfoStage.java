@@ -8,14 +8,12 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
@@ -30,7 +28,8 @@ public class PicturesInfoStage extends Stage {
     private static final String OPEN_DIR_TEXT = "Open dir";
     private static final String HELP_MENU_TEXT = "Help";
     private final PicturesInfoTableView picturesInfoTableView;
-    private final ObservableList<Object> picturesDataList;
+    private final ObservableList<PictureDetails> picturesDataList;
+    private final OpenFileInfoPane openFileInfoPane;
     private File picturesDirectory;
 
     public PicturesInfoStage() {
@@ -50,6 +49,7 @@ public class PicturesInfoStage extends Stage {
         // main marceTableView
         picturesInfoTableView = new PicturesInfoTableView();
         picturesInfoTableView.setEditable(true);
+        // TODO : picturesInfoTableView.setSelectionModel();
         picturesDataList = FXCollections.observableArrayList();
         picturesInfoTableView.setItems(picturesDataList);
         final VBox vbox = new VBox();
@@ -59,9 +59,9 @@ public class PicturesInfoStage extends Stage {
         vbox.getChildren().addAll(picturesInfoTableView);
         root.add(vbox, 0, rowNumber++);
 
-        // bottom pane indicating the currently opened file
-        currentlyOpenedFilePane = new CurrentlyOpenedFilePane();
-        root.add(currentlyOpenedFilePane, 0, rowNumber++);
+        // bottom pane indicating the open file (or dir)
+        openFileInfoPane = new OpenFileInfoPane();
+        root.add(openFileInfoPane, 0, rowNumber++);
 
         setTitle(MAIN_WINDOW_TITLE_TEXT);
         setScene(new Scene(root, 1200, 800));
@@ -105,11 +105,10 @@ public class PicturesInfoStage extends Stage {
                 PicturesInfoModel picturesInfoModel= null;
                 try {
                     picturesInfoModel = new PicturesInfoModel(getPicturesDirectory());
-                } catch (IOException e) {
-                    MarceDialogs.showError(MarcePrimaryStage.this, e);
-                }
-                catch (ImageProcessingException e) {
-                    e.printStackTrace();
+                    picturesDataList.addAll(picturesInfoModel.getPictureDetailsList());
+                } catch (IOException|ImageProcessingException e) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR, e.getLocalizedMessage());
+                    alert.show();
                 }
             }
         }
@@ -117,7 +116,7 @@ public class PicturesInfoStage extends Stage {
 
     private void setPicturesDirectory(File file) {
         picturesDirectory = file;
-        // TODO: side effect of updating the "current file" pane
+        openFileInfoPane.updateFilePathLabel(file.getAbsolutePath());
     }
 
     private File getPicturesDirectory() {
