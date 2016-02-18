@@ -21,23 +21,40 @@ public class PicturesInfoModel {
     public PicturesInfoModel(File picturesDirectory) throws ImageProcessingException, IOException {
         pictureDetailsList = new ArrayList<>();
         for (final File file : picturesDirectory.listFiles()) {
-            metadata = ImageMetadataReader.readMetadata(file);
-            PictureDetails pictureDetails = new PictureDetails();
-            pictureDetails.setFileName(file.getName());
-            for (Directory directory : metadata.getDirectories()) {
-                for (Tag tag : directory.getTags()) {
-                    if ( tag.getTagName().equals("GPS Longitude")) {
-                        pictureDetails.setGpsLongitude(tag.getDescription());
+            if ( ! file.isDirectory() ) {
+                PictureDetails pictureDetails = new PictureDetails();
+                pictureDetails.setFileName(file.getName());
+                try {
+                    metadata = ImageMetadataReader.readMetadata(file);
+                    for (Directory directory : metadata.getDirectories()) {
+                        for (Tag tag : directory.getTags()) {
+                            if (tag.getTagName().equals("GPS Longitude")) {
+                                pictureDetails.setGpsLongitude(tag.getDescription());
+                            }
+                            // System.out.format("[%s] - %s = %s\n", directory.getName(), tag.getTagName(), tag.getDescription());
+                            /*
+                            [GPS] - GPS Time-Stamp = 09:46:52.00 UTC
+                            [GPS] - GPS Processing Method = 0
+                            [GPS] - GPS Longitude = 13° 50' 59.87"
+                            [GPS] - GPS Latitude Ref = N
+                            [GPS] - GPS Altitude Ref = Sea level
+                            [GPS] - GPS Latitude = 45° 37' 42.24"
+                            [GPS] - GPS Altitude = 399 metres
+                            [GPS] - GPS Date Stamp = 2016:02:05
+                            [GPS] - GPS Longitude Ref = E
+                             */
+                        }
+                        if (directory.hasErrors()) {
+                            for (String error : directory.getErrors()) {
+                                pictureDetails.addError(new Exception(error));
+                            }
+                        }
                     }
-                    // System.out.format("[%s] - %s = %s\n", directory.getName(), tag.getTagName(), tag.getDescription());
+                } catch (ImageProcessingException e) {
+                    pictureDetails.addError(e);
                 }
-                if (directory.hasErrors()) {
-                    for (String error : directory.getErrors()) {
-                        System.err.format("ERROR: %s\n", error);
-                    }
-                }
+                pictureDetailsList.add(pictureDetails);
             }
-            pictureDetailsList.add(pictureDetails);
         }
     }
 

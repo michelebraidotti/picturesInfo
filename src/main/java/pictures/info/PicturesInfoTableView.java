@@ -11,13 +11,13 @@ public class PicturesInfoTableView extends TableView {
 
     public PicturesInfoTableView() {
 
-        TableColumn fileNameCol = new TableColumn("FileName");
+        TableColumn<PictureDetails, String> fileNameCol = new TableColumn<>("FileName");
         fileNameCol.setMinWidth(100);
-        fileNameCol.setCellValueFactory(new PropertyValueFactory("fileName"));
+        fileNameCol.setCellValueFactory(new PropertyValueFactory<>("fileName"));
 
-        TableColumn gpsLongCol = new TableColumn("GPS Longitude");
+        TableColumn<PictureDetails, String> gpsLongCol = new TableColumn<>("GPS Longitude");
         gpsLongCol.setMinWidth(350);
-        gpsLongCol.setCellValueFactory(new PropertyValueFactory("gpsLongitude"));
+        gpsLongCol.setCellValueFactory(new PropertyValueFactory<>("gpsLongitude"));
 
         getColumns().addAll(fileNameCol, gpsLongCol);
     }
