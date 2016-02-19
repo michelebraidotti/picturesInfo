@@ -1,9 +1,6 @@
 package pictures.info;
 
 import com.drew.imaging.ImageProcessingException;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -23,8 +20,7 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.NumberFormat;
-import java.util.Iterator;
+import java.util.List;
 
 /**
  * Created by michele on 2/16/16.
@@ -35,7 +31,7 @@ public class PicturesInfoStage extends Stage {
     private static final String OPEN_DIR_TEXT = "Open dir";
     private static final String HELP_MENU_TEXT = "Help";
     private static final java.lang.String EDIT_MENU = "Edit";
-    private static final java.lang.String COPY_TEXT = "Copy";
+    private static final java.lang.String COPY_TEXT = "Copy selected rows to clipboard";
     private final PicturesInfoTableView picturesInfoTableView;
     private final ObservableList<PictureDetails> picturesDataList;
     private final OpenFileInfoPane openFileInfoPane;
@@ -111,46 +107,18 @@ public class PicturesInfoStage extends Stage {
 
         @Override
         public void handle(ActionEvent event) {
-            copySelectionToClipboard(picturesInfoTableView);
+            try {
+                List<PictureDetails> selectedPictureDetails = picturesInfoTableView.getSelectionModel().getSelectedItems();
+                PicturesInfoManager picturesInfoManager = new PicturesInfoManager(getPicturesDirectory());
+                String csvInfo = picturesInfoManager.toCsvString(selectedPictureDetails);
+                final ClipboardContent clipboardContent = new ClipboardContent();
+                clipboardContent.putString(csvInfo);
+                Clipboard.getSystemClipboard().setContent(clipboardContent);
+            } catch (IOException|ImageProcessingException e) {
+                Alert alert = new Alert(Alert.AlertType.ERROR, e.getLocalizedMessage());
+                alert.show();
+            }
         }
-    }
-
-    private void copySelectionToClipboard(TableView<?> table) {
-        StringBuilder clipboardString = new StringBuilder();
-        NumberFormat numberFormatter = NumberFormat.getNumberInstance();
-        ObservableList<TablePosition> positionList = table.getSelectionModel().getSelectedCells();
-        int prevRow = -1;
-        for (TablePosition position : positionList) {
-            int row = position.getRow();
-            int col = position.getColumn();
-            if (prevRow == row) {
-                clipboardString.append('\t');
-            } else if (prevRow != -1) {
-                clipboardString.append('\n');
-            }
-            String text = "";
-            Object observableValue = table.getColumns().get(col).getCellObservableValue( row);
-            if (observableValue == null) {
-                text = "";
-            }
-            else if( observableValue instanceof DoubleProperty) { // TODO: handle boolean etc
-                text = numberFormatter.format( ((DoubleProperty) observableValue).get());
-            }
-            else if( observableValue instanceof IntegerProperty) {
-                text = numberFormatter.format( ((IntegerProperty) observableValue).get());
-            }
-            else if( observableValue instanceof StringProperty) {
-                text = ((StringProperty) observableValue).get();
-            }
-            else {
-                System.out.println("Unsupported observable value: " + observableValue);
-            }
-            clipboardString.append(text);
-            prevRow = row;
-        }
-        final ClipboardContent clipboardContent = new ClipboardContent();
-        clipboardContent.putString(clipboardString.toString());
-        Clipboard.getSystemClipboard().setContent(clipboardContent);
     }
 
     private class OpenAction implements EventHandler<ActionEvent> {
@@ -164,11 +132,11 @@ public class PicturesInfoStage extends Stage {
             );
             setPicturesDirectory(directoryChooser.showDialog(PicturesInfoStage.this));
             if (getPicturesDirectory() != null) {
-                PicturesInfoModel picturesInfoModel= null;
+                PicturesInfoManager picturesInfoManager = null;
                 picturesDataList.removeAll();
                 try {
-                    picturesInfoModel = new PicturesInfoModel(getPicturesDirectory());
-                    picturesDataList.addAll(picturesInfoModel.getPictureDetailsList());
+                    picturesInfoManager = new PicturesInfoManager(getPicturesDirectory());
+                    picturesDataList.addAll(picturesInfoManager.getPictureDetailsList());
                 } catch (IOException|ImageProcessingException e) {
                     Alert alert = new Alert(Alert.AlertType.ERROR, e.getLocalizedMessage());
                     alert.show();
