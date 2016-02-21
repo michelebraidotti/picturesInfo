@@ -11,6 +11,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by michele on 2/16/16.
@@ -39,7 +41,7 @@ public class PicturesInfoManager {
                             }
                             //[GPS] - GPS Longitude = 13° 50' 59.87"
                             if (tag.getTagName().equals("GPS Longitude")) {
-                                pictureDetails.setGpsLongitude(tag.getDescription());
+                                pictureDetails.setGpsLongitude(convertCoordinates(tag.getDescription()));
                             }
                             //[GPS] - GPS Longitude Ref = E
                             if (tag.getTagName().equals("GPS Longitude Ref")) {
@@ -47,7 +49,7 @@ public class PicturesInfoManager {
                             }
                             //[GPS] - GPS Latitude = 45° 37' 42.24"
                             if (tag.getTagName().equals("GPS Latitude")) {
-                                pictureDetails.setGpsLatitude(tag.getDescription());
+                                pictureDetails.setGpsLatitude(convertCoordinates(tag.getDescription()));
                             }
                             //[GPS] - GPS Latitude Ref = N
                             if (tag.getTagName().equals("GPS Latitude Ref")) {
@@ -79,6 +81,24 @@ public class PicturesInfoManager {
                 pictureDetailsList.add(pictureDetails);
             }
         }
+    }
+
+    private String convertCoordinates(String oldCoordinates) {
+        String newCoordinates = "??";
+        // 45° 37' 42.29""
+        Pattern pattern = Pattern.compile("(\\d\\d)° (\\d\\d)' (\\d\\d.\\d\\d)\"");
+        Matcher matcher = pattern.matcher(oldCoordinates);
+        if ( matcher.find() ) {
+            Float degrees = Float.parseFloat(matcher.group(1));
+            Float minutes = Float.parseFloat(matcher.group(2));
+            Float seconds = Float.parseFloat(matcher.group(3));
+            degrees += minutes/60;
+            degrees += seconds/3600;
+            System.out.print(degrees + " " + minutes + " " + seconds + "\n");
+            System.out.printf("%f\n", degrees);
+            newCoordinates = String.format("%f ", degrees);
+        }
+        return  newCoordinates;
     }
 
     public List<PictureDetails> getPictureDetailsList() {
