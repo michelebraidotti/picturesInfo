@@ -57,7 +57,7 @@ public class PicturesInfoStage extends Stage {
         picturesInfoTableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         picturesDataList = FXCollections.observableArrayList();
         picturesInfoTableView.setItems(picturesDataList);
-        final VBox vbox = new VBox();
+        VBox vbox = new VBox();
         vbox.setSpacing(5);
         vbox.setPadding(new Insets(10, 10, 10, 10));
         picturesInfoTableView.setPrefHeight(700);
@@ -66,11 +66,16 @@ public class PicturesInfoStage extends Stage {
 
         // bottom pane indicating the open file (or dir)
         openFileInfoPane = new OpenFileInfoPane();
-        root.add(openFileInfoPane, 0, rowNumber++);
+        VBox vboxFilePane = new VBox();
+        vboxFilePane.setSpacing(5);
+        vboxFilePane.setPadding(new Insets(10, 10, 10, 10));
+        vboxFilePane.getChildren().addAll(openFileInfoPane);
+        root.add(vboxFilePane, 0, rowNumber++);
 
         setTitle(MAIN_WINDOW_TITLE_TEXT);
         setScene(new Scene(root, 1200, 800));
     }
+
     private ToolBar buildToolBar() {
         ToolBar toolBar = new ToolBar();
 
@@ -78,7 +83,11 @@ public class PicturesInfoStage extends Stage {
         buttonOpen.setContentDisplay(ContentDisplay.TOP);
         buttonOpen.setOnAction(new OpenAction());
 
-        toolBar.getItems().addAll(buttonOpen);
+        Button buttonCopy = new Button(COPY_TEXT, new ImageView(new Image("icons/clipboard_32.png")));
+        buttonCopy.setContentDisplay(ContentDisplay.TOP);
+        buttonCopy.setOnAction(new CopyAction());
+
+        toolBar.getItems().addAll(buttonOpen, buttonCopy);
         return toolBar;
     }
 
@@ -114,6 +123,8 @@ public class PicturesInfoStage extends Stage {
                 final ClipboardContent clipboardContent = new ClipboardContent();
                 clipboardContent.putString(csvInfo);
                 Clipboard.getSystemClipboard().setContent(clipboardContent);
+                Alert alert = new Alert(Alert.AlertType.INFORMATION, selectedPictureDetails.size() + " rows copied");
+                alert.show();
             } catch (IOException|ImageProcessingException e) {
                 Alert alert = new Alert(Alert.AlertType.ERROR, e.getLocalizedMessage());
                 alert.show();

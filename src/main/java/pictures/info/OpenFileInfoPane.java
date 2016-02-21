@@ -15,7 +15,7 @@ public class OpenFileInfoPane extends GridPane {
         GridPane bottomPane = new GridPane();
         bottomPane.setMaxHeight(90);
         bottomPane.setPadding(new Insets(0, 10, 10, 10));
-        Label openFileLabel = new Label("Open file: ");
+        Label openFileLabel = new Label("Current file: ");
         bottomPane.add(openFileLabel, 0, 0);
         openFilePathLabel = new Label("No file");
         bottomPane.add(openFilePathLabel, 1, 0);
