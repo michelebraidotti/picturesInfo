@@ -41,7 +41,7 @@ public class PicturesInfoManager {
                             }
                             //[GPS] - GPS Longitude = 13° 50' 59.87"
                             if (tag.getTagName().equals("GPS Longitude")) {
-                                pictureDetails.setGpsLongitude(convertCoordinates(tag.getDescription()));
+                                pictureDetails.setGpsLongitudeDegrees(tag.getDescription());
                             }
                             //[GPS] - GPS Longitude Ref = E
                             if (tag.getTagName().equals("GPS Longitude Ref")) {
@@ -49,7 +49,7 @@ public class PicturesInfoManager {
                             }
                             //[GPS] - GPS Latitude = 45° 37' 42.24"
                             if (tag.getTagName().equals("GPS Latitude")) {
-                                pictureDetails.setGpsLatitude(convertCoordinates(tag.getDescription()));
+                                pictureDetails.setGpsLatitudeDegrees(tag.getDescription());
                             }
                             //[GPS] - GPS Latitude Ref = N
                             if (tag.getTagName().equals("GPS Latitude Ref")) {
@@ -83,37 +83,18 @@ public class PicturesInfoManager {
         }
     }
 
-    private String convertCoordinates(String oldCoordinates) {
-        String newCoordinates = "??";
-        // 45° 37' 42.29""
-        Pattern pattern = Pattern.compile("(\\d\\d)° (\\d\\d)' (\\d\\d.\\d\\d)\"");
-        Matcher matcher = pattern.matcher(oldCoordinates);
-        if ( matcher.find() ) {
-            Float degrees = Float.parseFloat(matcher.group(1));
-            Float minutes = Float.parseFloat(matcher.group(2));
-            Float seconds = Float.parseFloat(matcher.group(3));
-            degrees += minutes/60;
-            degrees += seconds/3600;
-            System.out.print(degrees + " " + minutes + " " + seconds + "\n");
-            System.out.printf("%f\n", degrees);
-            newCoordinates = String.format("%f ", degrees);
-        }
-        return  newCoordinates;
-    }
-
     public List<PictureDetails> getPictureDetailsList() {
         return pictureDetailsList;
     }
 
     public String toCsvString(List<PictureDetails> pictureDetailsToExportList) {
         StringBuilder out = new StringBuilder();
-        out.append("File Name,GPS Date Stamp,GPS Time-Stamp,GPS Processing Method,GPS Longitude,GPS Longitude Ref,GPS Latitude,GPS Latitude Ref,GPS Altitude,GPS Altitude Ref,\n");
-        for (PictureDetails pictureDetails:getPictureDetailsList()) {
-            for ( PictureDetails pictureDetailsToExport:pictureDetailsToExportList) {
-                if ( pictureDetails.equals(pictureDetailsToExport) ) {
-                    out.append(convertToCsvRow(pictureDetailsToExport));
-                }
-            }
+        out.append("File Name,GPS Date Stamp,GPS Time-Stamp,GPS Processing Method," +
+                "GPS Longitude (Degrees),GPS Longitude,GPS Longitude Ref," +
+                "GPS Latitude (Degrees),GPS Latitude,GPS Latitude Ref," +
+                "GPS Altitude,GPS Altitude Ref,\n");
+        for ( PictureDetails pictureDetailsToExport:pictureDetailsToExportList) {
+            out.append(convertToCsvRow(pictureDetailsToExport));
         }
         return out.toString();
     }
@@ -124,8 +105,10 @@ public class PicturesInfoManager {
         out.append(StringEscapeUtils.escapeCsv(pictureDetailsToExport.getGpsDateStamp()) + ",");
         out.append(StringEscapeUtils.escapeCsv(pictureDetailsToExport.getGpsTimeStamp()) + ",");
         out.append(StringEscapeUtils.escapeCsv(pictureDetailsToExport.getGpsProcessingMethod()) + ",");
+        out.append(StringEscapeUtils.escapeCsv(pictureDetailsToExport.getGpsLongitudeDegrees()) + ",");
         out.append(StringEscapeUtils.escapeCsv(pictureDetailsToExport.getGpsLongitude()) + ",");
         out.append(StringEscapeUtils.escapeCsv(pictureDetailsToExport.getGpsLongitudeRef()) + ",");
+        out.append(StringEscapeUtils.escapeCsv(pictureDetailsToExport.getGpsLatitudeDegrees()) + ",");
         out.append(StringEscapeUtils.escapeCsv(pictureDetailsToExport.getGpsLatitude()) + ",");
         out.append(StringEscapeUtils.escapeCsv(pictureDetailsToExport.getGpsLatitudeRef()) + ",");
         out.append(StringEscapeUtils.escapeCsv(pictureDetailsToExport.getGpsAltitude()) + ",");

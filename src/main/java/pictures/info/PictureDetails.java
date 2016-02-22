@@ -5,6 +5,8 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by michele on 2/17/16.
@@ -13,10 +15,10 @@ public class PictureDetails {
     private String fileName;
     private String gpsTimeStamp = "NA";
     private String gpsProcessingMethod = "NA";
-    private String gpsLongitude = "NA";
+    private String gpsLongitudeDegrees = "NA";
     private String gpsLatitudeRef = "NA";
     private String gpsAltitudeRef = "NA";
-    private String gpsLatitude = "NA";
+    private String gpsLatitudeDegrees = "NA";
     private String gpsAltitude = "NA";
     private String gpsDateStamp = "NA";
     private String gpsLongitudeRef = "NA";
@@ -47,12 +49,12 @@ public class PictureDetails {
         this.gpsProcessingMethod = gpsProcessingMethod;
     }
 
-    public String getGpsLongitude() {
-        return gpsLongitude;
+    public String getGpsLongitudeDegrees() {
+        return gpsLongitudeDegrees;
     }
 
-    public void setGpsLongitude(String gpsLongitude) {
-        this.gpsLongitude = gpsLongitude;
+    public void setGpsLongitudeDegrees(String gpsLongitudeDegrees) {
+        this.gpsLongitudeDegrees = gpsLongitudeDegrees;
     }
 
     public String getGpsLatitudeRef() {
@@ -71,12 +73,12 @@ public class PictureDetails {
         this.gpsAltitudeRef = gpsAltitudeRef;
     }
 
-    public String getGpsLatitude() {
-        return gpsLatitude;
+    public String getGpsLatitudeDegrees() {
+        return gpsLatitudeDegrees;
     }
 
-    public void setGpsLatitude(String gpsLatitude) {
-        this.gpsLatitude = gpsLatitude;
+    public void setGpsLatitudeDegrees(String gpsLatitudeDegrees) {
+        this.gpsLatitudeDegrees = gpsLatitudeDegrees;
     }
 
     public String getGpsAltitude() {
@@ -107,13 +109,28 @@ public class PictureDetails {
         this.errors.add(error);
     }
 
-    public String getErrorsLocalizedMessages() {
-        StringBuilder out = new StringBuilder();
-        for (Exception error:errors) {
-            out.append(error.getLocalizedMessage());
-            out.append("**************************");
+    public String getGpsLatitude() {
+        return convertCoordinates(gpsLatitudeDegrees);
+    }
+
+    public String getGpsLongitude() {
+        return convertCoordinates(gpsLongitudeDegrees);
+    }
+
+    private String convertCoordinates(String oldCoordinates) {
+        String newCoordinates = "??";
+        // 45° 37' 42.29""
+        Pattern pattern = Pattern.compile("(\\d\\d)° (\\d\\d)' (\\d\\d.\\d\\d)\"");
+        Matcher matcher = pattern.matcher(oldCoordinates);
+        if ( matcher.find() ) {
+            Float degrees = Float.parseFloat(matcher.group(1));
+            Float minutes = Float.parseFloat(matcher.group(2));
+            Float seconds = Float.parseFloat(matcher.group(3));
+            degrees += minutes/60;
+            degrees += seconds/3600;
+            newCoordinates = String.format("%f ", degrees);
         }
-        return out.toString();
+        return  newCoordinates;
     }
 
     @Override
@@ -128,10 +145,10 @@ public class PictureDetails {
                 .append(fileName, that.fileName)
                 .append(gpsTimeStamp, that.gpsTimeStamp)
                 .append(gpsProcessingMethod, that.gpsProcessingMethod)
-                .append(gpsLongitude, that.gpsLongitude)
+                .append(gpsLongitudeDegrees, that.gpsLongitudeDegrees)
                 .append(gpsLatitudeRef, that.gpsLatitudeRef)
                 .append(gpsAltitudeRef, that.gpsAltitudeRef)
-                .append(gpsLatitude, that.gpsLatitude)
+                .append(gpsLatitudeDegrees, that.gpsLatitudeDegrees)
                 .append(gpsAltitude, that.gpsAltitude)
                 .append(gpsDateStamp, that.gpsDateStamp)
                 .append(gpsLongitudeRef, that.gpsLongitudeRef)
@@ -144,10 +161,10 @@ public class PictureDetails {
                 .append(fileName)
                 .append(gpsTimeStamp)
                 .append(gpsProcessingMethod)
-                .append(gpsLongitude)
+                .append(gpsLongitudeDegrees)
                 .append(gpsLatitudeRef)
                 .append(gpsAltitudeRef)
-                .append(gpsLatitude)
+                .append(gpsLatitudeDegrees)
                 .append(gpsAltitude)
                 .append(gpsDateStamp)
                 .append(gpsLongitudeRef)

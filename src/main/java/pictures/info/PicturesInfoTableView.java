@@ -23,6 +23,10 @@ public class PicturesInfoTableView extends TableView {
         gpsProcessingMethodCol.setMinWidth(150);
         gpsProcessingMethodCol.setCellValueFactory(new PropertyValueFactory<>("gpsProcessingMethod"));
 
+        TableColumn<PictureDetails, String> gpsLongitudeDegreesCol = new TableColumn<>("GPS Longitude (Degrees)");
+        gpsLongitudeDegreesCol.setMinWidth(150);
+        gpsLongitudeDegreesCol.setCellValueFactory(new PropertyValueFactory<>("gpsLongitudeDegrees"));
+
         TableColumn<PictureDetails, String> gpsLongitudeCol = new TableColumn<>("GPS Longitude");
         gpsLongitudeCol.setMinWidth(150);
         gpsLongitudeCol.setCellValueFactory(new PropertyValueFactory<>("gpsLongitude"));
@@ -30,6 +34,10 @@ public class PicturesInfoTableView extends TableView {
         TableColumn<PictureDetails, String> gpsLongitudeRefCol = new TableColumn<>("GPS Longitude Ref");
         gpsLongitudeRefCol.setMinWidth(150);
         gpsLongitudeRefCol.setCellValueFactory(new PropertyValueFactory<>("gpsLongitudeRef"));
+
+        TableColumn<PictureDetails, String> gpsLatitudeDegreesCol = new TableColumn<>("GPS Latitude (Degrees)");
+        gpsLatitudeDegreesCol.setMinWidth(150);
+        gpsLatitudeDegreesCol.setCellValueFactory(new PropertyValueFactory<>("gpsLatitudeDegrees"));
 
         TableColumn<PictureDetails, String> gpsLatitudeCol = new TableColumn<>("GPS Latitude");
         gpsLatitudeCol.setMinWidth(150);
@@ -51,7 +59,9 @@ public class PicturesInfoTableView extends TableView {
         gpsDateStamp.setMinWidth(150);
         gpsDateStamp.setCellValueFactory(new PropertyValueFactory<>("gpsDateStamp"));
 
-        getColumns().addAll(fileNameCol, gpsDateStamp, gpsTimeStampCol, gpsProcessingMethodCol, gpsLongitudeCol, gpsLongitudeRefCol,
-                gpsLatitudeCol, gpsLatitudeRefCol, gpsAltitudeCol, gpsAltitudeRefCol);
+        getColumns().addAll(fileNameCol, gpsDateStamp, gpsTimeStampCol, gpsProcessingMethodCol,
+                gpsLongitudeDegreesCol, gpsLongitudeCol, gpsLongitudeRefCol,
+                gpsLatitudeDegreesCol, gpsLatitudeCol, gpsLatitudeRefCol,
+                gpsAltitudeCol, gpsAltitudeRefCol);
     }
 }

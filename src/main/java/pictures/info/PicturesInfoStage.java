@@ -16,9 +16,12 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
@@ -32,6 +35,7 @@ public class PicturesInfoStage extends Stage {
     private static final String HELP_MENU_TEXT = "Help";
     private static final java.lang.String EDIT_MENU = "Edit";
     private static final java.lang.String COPY_TEXT = "Copy selected rows to clipboard";
+    private static final java.lang.String SAVE_TEXT = "Save selected rows to file";
     private final PicturesInfoTableView picturesInfoTableView;
     private final ObservableList<PictureDetails> picturesDataList;
     private final OpenFileInfoPane openFileInfoPane;
@@ -87,7 +91,11 @@ public class PicturesInfoStage extends Stage {
         buttonCopy.setContentDisplay(ContentDisplay.TOP);
         buttonCopy.setOnAction(new CopyAction());
 
-        toolBar.getItems().addAll(buttonOpen, buttonCopy);
+        Button buttonSave = new Button(SAVE_TEXT, new ImageView(new Image("icons/save_32.png")));
+        buttonSave.setContentDisplay(ContentDisplay.TOP);
+        buttonSave.setOnAction(new SaveAction());
+
+        toolBar.getItems().addAll(buttonOpen, buttonCopy, buttonSave);
         return toolBar;
     }
 
@@ -105,11 +113,41 @@ public class PicturesInfoStage extends Stage {
         MenuItem copyItem = new MenuItem(COPY_TEXT);
         copyItem.setOnAction(new CopyAction());
 
-        menuEdit.getItems().addAll(copyItem);
+        MenuItem editItem = new MenuItem(SAVE_TEXT);
+        editItem.setOnAction(new SaveAction());
+
+        menuEdit.getItems().addAll(copyItem, editItem);
 
         Menu menuHelp = new Menu(HELP_MENU_TEXT);
         menuBar.getMenus().addAll(menuFile, menuEdit, menuHelp);
         return menuBar;
+    }
+
+    private class SaveAction implements EventHandler<ActionEvent> {
+
+        @Override
+        public void handle(ActionEvent event) {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Save");
+            fileChooser.setInitialDirectory(
+                    new File(System.getProperty("user.home"))
+            );
+            fileChooser.setInitialFileName(".csv");
+            File outFile = fileChooser.showSaveDialog(PicturesInfoStage.this);
+            try {
+                FileWriter fStream = new FileWriter(outFile.getAbsolutePath());
+                BufferedWriter out = new BufferedWriter(fStream);
+                List<PictureDetails> selectedPictureDetails = picturesInfoTableView.getSelectionModel().getSelectedItems();
+                PicturesInfoManager picturesInfoManager = new PicturesInfoManager(getPicturesDirectory());
+                out.write(picturesInfoManager.toCsvString(selectedPictureDetails));
+                out.close();
+                Alert alert = new Alert(Alert.AlertType.INFORMATION, selectedPictureDetails.size() + " rows written to file");
+                alert.show();
+            } catch (IOException|ImageProcessingException e) {
+                Alert alert = new Alert(Alert.AlertType.ERROR, e.getLocalizedMessage());
+                alert.show();
+            }
+        }
     }
 
     private class CopyAction implements EventHandler<ActionEvent> {
