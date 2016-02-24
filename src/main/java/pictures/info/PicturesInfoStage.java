@@ -36,9 +36,9 @@ public class PicturesInfoStage extends Stage {
     private static final java.lang.String EDIT_MENU = "Edit";
     private static final java.lang.String COPY_TEXT = "Copy selected rows to clipboard";
     private static final java.lang.String SAVE_TEXT = "Save selected rows to file";
-    private final PicturesInfoTableView picturesInfoTableView;
-    private final ObservableList<PictureDetails> picturesDataList;
-    private final OpenFileInfoPane openFileInfoPane;
+    private PicturesInfoTableView picturesInfoTableView;
+    private ObservableList<PictureDetails> picturesDataList;
+    private OpenDirectoryInfoPane openFileInfoPane;
     private File picturesDirectory;
 
     public PicturesInfoStage() {
@@ -68,13 +68,9 @@ public class PicturesInfoStage extends Stage {
         vbox.getChildren().addAll(picturesInfoTableView);
         root.add(vbox, 0, rowNumber++);
 
-        // bottom pane indicating the open file (or dir)
-        openFileInfoPane = new OpenFileInfoPane();
-        VBox vboxFilePane = new VBox();
-        vboxFilePane.setSpacing(5);
-        vboxFilePane.setPadding(new Insets(10, 10, 10, 10));
-        vboxFilePane.getChildren().addAll(openFileInfoPane);
-        root.add(vboxFilePane, 0, rowNumber++);
+        // bottom pane indicating the open dir
+        openFileInfoPane = new OpenDirectoryInfoPane();
+        root.add(openFileInfoPane, 0, rowNumber++);
 
         setTitle(MAIN_WINDOW_TITLE_TEXT);
         setScene(new Scene(root, 1200, 800));
@@ -182,7 +178,7 @@ public class PicturesInfoStage extends Stage {
             setPicturesDirectory(directoryChooser.showDialog(PicturesInfoStage.this));
             if (getPicturesDirectory() != null) {
                 PicturesInfoManager picturesInfoManager = null;
-                picturesDataList.removeAll();
+                picturesDataList.clear();
                 try {
                     picturesInfoManager = new PicturesInfoManager(getPicturesDirectory());
                     picturesDataList.addAll(picturesInfoManager.getPictureDetailsList());
@@ -196,7 +192,7 @@ public class PicturesInfoStage extends Stage {
 
     private void setPicturesDirectory(File file) {
         picturesDirectory = file;
-        openFileInfoPane.updateFilePathLabel(file.getAbsolutePath());
+        openFileInfoPane.updateDirectoryPathLabel(file.getAbsolutePath());
     }
 
     private File getPicturesDirectory() {
