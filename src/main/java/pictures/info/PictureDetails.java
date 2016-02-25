@@ -123,9 +123,9 @@ public class PictureDetails {
         Pattern pattern = Pattern.compile("(\\d\\d)° (\\d\\d)' (\\d\\d.\\d\\d)\"");
         Matcher matcher = pattern.matcher(oldCoordinates);
         if ( matcher.find() ) {
-            Float degrees = Float.parseFloat(matcher.group(1));
-            Float minutes = Float.parseFloat(matcher.group(2));
-            Float seconds = Float.parseFloat(matcher.group(3));
+            Float degrees = Float.parseFloat(matcher.group(1).replaceAll(",", "."));
+            Float minutes = Float.parseFloat(matcher.group(2).replaceAll(",", "."));
+            Float seconds = Float.parseFloat(matcher.group(3).replaceAll(",", "."));
             degrees += minutes/60;
             degrees += seconds/3600;
             newCoordinates = String.format("%f ", degrees);
