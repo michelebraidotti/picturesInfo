@@ -120,7 +120,7 @@ public class PictureDetails {
     private String convertCoordinates(String oldCoordinates) {
         String newCoordinates = "??";
         // 45° 37' 42.29""
-        Pattern pattern = Pattern.compile("(\\d\\d)° (\\d\\d)' (\\d\\d.\\d\\d)\"");
+        Pattern pattern = Pattern.compile("(\\d?\\d)° (\\d?\\d)' (\\d?\\d.\\d+)\"");
         Matcher matcher = pattern.matcher(oldCoordinates);
         if ( matcher.find() ) {
             Float degrees = Float.parseFloat(matcher.group(1).replaceAll(",", "."));
